@@ -1594,7 +1594,7 @@ def run_recording(recording_id, channel_id, start_time_str, end_time_str):
 
     end_timestamp = end_time.timestamp()
     _stop_poll_interval = 2.0
-    _first_segment_timeout = 15.0
+    _first_segment_timeout = 60.0
     _stall_timeout = 60.0  # seconds without new segments → source stream gone
     _active_lock_refresh_interval = 15.0
     _ffmpeg_stderr_tail = deque(maxlen=200)

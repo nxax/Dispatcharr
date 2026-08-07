@@ -10,10 +10,10 @@ class BaseConfig:
     RETRY_WINDOW_SECONDS = 1800  # Reset retry counter after this long without a failure
     STABLE_CONNECTION_THRESHOLD = 30  # Seconds of uptime before switch rotation state resets
     RETRY_WAIT_INTERVAL = 0.5  # seconds to wait between retries
-    CONNECTION_TIMEOUT = 10  # seconds to wait for initial connection
+    CONNECTION_TIMEOUT = 60  # seconds to wait for initial connection
     MAX_STREAM_SWITCHES = 10  # Maximum number of stream switch attempts before giving up
     BUFFER_CHUNK_SIZE = 188 * 1361  # ~256KB
-    BUFFERING_TIMEOUT = 15  # Seconds to wait for buffering before switching streams
+    BUFFERING_TIMEOUT = 60  # Seconds to wait for buffering before switching streams
     BUFFER_SPEED = 1 # What speed to condsider the stream buffering, 1x is normal speed, 2x is double speed, etc.
 
     # Cache for proxy settings (class-level, shared across all instances).
@@ -75,15 +75,15 @@ class BaseConfig:
         return self.get_redis_chunk_ttl()
 
 class HLSConfig(BaseConfig):
-    MIN_SEGMENTS = 12
+    MIN_SEGMENTS = 1
     MAX_SEGMENTS = 16
     WINDOW_SIZE = 12
-    INITIAL_SEGMENTS = 3
+    INITIAL_SEGMENTS = 1
     INITIAL_CONNECTION_WINDOW = 10
     CLIENT_TIMEOUT_FACTOR = 1.5
     CLIENT_CLEANUP_INTERVAL = 10
     FIRST_SEGMENT_TIMEOUT = 5.0
-    INITIAL_BUFFER_SECONDS = 25.0
+    INITIAL_BUFFER_SECONDS = 2.0
     MAX_INITIAL_SEGMENTS = 10
     BUFFER_READY_TIMEOUT = 30.0
 
@@ -91,17 +91,17 @@ class TSConfig(BaseConfig):
     """Configuration settings for TS proxy"""
 
     # Buffer settings
-    INITIAL_BEHIND_CHUNKS = 4  # How many chunks behind to start a client (4 chunks = ~1MB)
+    INITIAL_BEHIND_CHUNKS = 1  # How many chunks behind to start a client (4 chunks = ~1MB)
     CHUNK_BATCH_SIZE = 5       # How many chunks to fetch in one batch
-    NEW_CLIENT_BEHIND_SECONDS = 5  # Start new clients this many seconds behind live (0 = start at live)
+    NEW_CLIENT_BEHIND_SECONDS = 0  # Start new clients this many seconds behind live (0 = start at live)
     KEEPALIVE_INTERVAL = 0.5   # Seconds between keepalive packets when at buffer head
     # Chunk read timeout
     CHUNK_TIMEOUT = 5        # Seconds to wait for each chunk read
 
     # Streaming settings
     TARGET_BITRATE = 8000000   # Target bitrate (8 Mbps)
-    STREAM_TIMEOUT = 20        # Disconnect after this many seconds of no data
-    HEALTH_CHECK_INTERVAL = 5  # Check stream health every N seconds
+    STREAM_TIMEOUT = 45        # Disconnect after this many seconds of no data
+    HEALTH_CHECK_INTERVAL = 15  # Check stream health every N seconds
 
     # Resource management
     CLEANUP_INTERVAL = 60  # Check for inactive channels every 60 seconds
@@ -111,7 +111,7 @@ class TSConfig(BaseConfig):
     CLEANUP_CHECK_INTERVAL = 1  # How often to check for disconnected clients (seconds)
     CLIENT_HEARTBEAT_INTERVAL = 5  # How often to send client heartbeats (seconds)
     GHOST_CLIENT_MULTIPLIER = 10.0  # How many heartbeat intervals before client considered ghost (10 = 50s, must exceed STREAM_TIMEOUT + FAILOVER_GRACE_PERIOD = 40s)
-    CLIENT_WAIT_TIMEOUT = 60  # Seconds to wait for channel to become ready
+    CLIENT_WAIT_TIMEOUT = 30  # Seconds to wait for channel to become ready
 
     # Stream health and recovery settings
     MAX_HEALTH_RECOVERY_ATTEMPTS = 2     # Maximum times to attempt recovery for a single stream
@@ -134,7 +134,7 @@ class TSConfig(BaseConfig):
     def get_buffering_timeout(cls):
         """Get buffering timeout from database or default"""
         settings = cls.get_proxy_settings()
-        return settings.get("buffering_timeout", 15)
+        return settings.get("buffering_timeout", 45)
 
     @classmethod
     def get_buffering_speed(cls):
