@@ -265,8 +265,8 @@ const StreamsTable = ({ onReady }) => {
     channel_group: '',
     m3u_account: '',
     tvg_id: '',
-    unassigned: false,
-    hide_stale: false,
+    unassigned: true,
+    hide_stale: true,
     is_catchup: false,
   };
   const [filters, setFilters] = useBrowserStorage(
@@ -284,7 +284,8 @@ const StreamsTable = ({ onReady }) => {
     if (!scrollContainer) return;
 
     const updateOverflow = () => {
-      const overflow = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+      const overflow =
+        scrollContainer.scrollWidth - scrollContainer.clientWidth;
       scrollContainer.style.overflowX = overflow > 1 ? 'auto' : 'hidden';
     };
 
@@ -422,13 +423,10 @@ const StreamsTable = ({ onReady }) => {
   const setPagination = useStreamsTableStore((s) => s.setPagination);
   const sorting = useStreamsTableStore((s) => s.sorting);
   const setSorting = useStreamsTableStore((s) => s.setSorting);
-  const resetColumnSizing = useCallback(
-    () => {
-      setColumnSizing({ ...defaultStreamColumnSizing });
-      setSorting([{ id: 'name', desc: false }]);
-    },
-    [setColumnSizing, setSorting]
-  );
+  const resetColumnSizing = useCallback(() => {
+    setColumnSizing({ ...defaultStreamColumnSizing });
+    setSorting([{ id: 'name', desc: false }]);
+  }, [setColumnSizing, setSorting]);
   const selectedStreamIds = useStreamsTableStore((s) => s.selectedStreamIds);
   const setSelectedStreamIds = useStreamsTableStore(
     (s) => s.setSelectedStreamIds
