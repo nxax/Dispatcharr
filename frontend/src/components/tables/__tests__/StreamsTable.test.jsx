@@ -830,4 +830,34 @@ describe('StreamsTable', () => {
       expect(mockShowVideo).toHaveBeenCalled();
     });
   });
+
+  // ── Filters default state & toggling ───────────────────────────────────────
+
+  describe('filters', () => {
+    it('has Only Unassociated and Hide Stale checked by default, and toggles them', async () => {
+      setupMocks();
+      render(<StreamsTable />);
+
+      const unassociatedBtn = screen.getByText('Only Unassociated').closest('button');
+      const hideStaleBtn = screen.getByText('Hide Stale').closest('button');
+      const catchupBtn = screen.getByText('Only Catch-up').closest('button');
+
+      // Both should be checked by default
+      expect(unassociatedBtn.querySelector('[data-testid="icon-square-check"]')).toBeInTheDocument();
+      expect(hideStaleBtn.querySelector('[data-testid="icon-square-check"]')).toBeInTheDocument();
+      expect(catchupBtn.querySelector('[data-testid="icon-square"]')).toBeInTheDocument();
+
+      // Toggle Only Unassociated
+      fireEvent.click(unassociatedBtn);
+      expect(unassociatedBtn.querySelector('[data-testid="icon-square"]')).toBeInTheDocument();
+
+      // Toggle Hide Stale
+      fireEvent.click(hideStaleBtn);
+      expect(hideStaleBtn.querySelector('[data-testid="icon-square"]')).toBeInTheDocument();
+
+      // Toggle Only Catch-up
+      fireEvent.click(catchupBtn);
+      expect(catchupBtn.querySelector('[data-testid="icon-square-check"]')).toBeInTheDocument();
+    });
+  });
 });

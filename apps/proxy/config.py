@@ -48,7 +48,7 @@ class BaseConfig:
         except Exception:
             # Return defaults if database query fails
             return {
-                "buffering_timeout": 15,
+                "buffering_timeout": 45,
                 "buffering_speed": 1.0,
                 "redis_chunk_ttl": 60,
                 "channel_shutdown_delay": 0,

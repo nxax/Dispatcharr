@@ -1,0 +1,133 @@
+# Dispatcharr Developer & Agent Rules (`.cursorrules`)
+
+Welcome, Agent! This file provides the essential context, structural layout, technical stack, and efficiency guidelines for the **Dispatcharr** project. Use this context to understand the project structure, locate components, and work efficiently without rescanning the entire repository.
+
+---
+
+## 📖 Project Overview
+**Dispatcharr** is an open-source IPTV, EPG (Electronic Program Guide), and VOD (Video on Demand) management dashboard/proxy.
+It consolidates multiple IPTV M3U sources, schedules DVR recordings, emulates HDHomeRun devices for Plex/Jellyfin/Emby, generates XMLTV guides, and proxies streams with real-time bandwidth monitoring, failover support, and FFmpeg/VLC transcoding.
+
+---
+
+## 🛠️ Tech Stack & Dependencies
+- **Backend Framework**: Django 6.0.5 (REST APIs built with Django REST Framework).
+- **Asynchronous / Realtime**: Django Channels + Daphne (ASGI), Redis (caching and channel layer backend).
+- **Background Tasks**: Celery 5.6.3 with Redis broker & Django Celery Beat.
+- **Python Version**: `>=3.13` (managed via `uv` package manager).
+- **Frontend Stack**: React 19, Mantine UI v8, Vite, React Router v7.
+- **Database**: PostgreSQL (default production) / SQLite (flexible fallback for testing/local setups).
+- **External Tools**: FFmpeg, VLC (`python-vlc`), Streamlink, and `yt-dlp` for stream proxying & transcoding.
+
+---
+
+## 📂 Project Architecture Map
+Use this directory guide to locate files directly rather than scanning or searching the entire workspace.
+
+### 🐍 Backend Structure
+- [**`dispatcharr/`**](file:///c:/Users/neis7/github/Dispatcharr/dispatcharr): Root project configuration.
+  - [`settings.py`](file:///c:/Users/neis7/github/Dispatcharr/dispatcharr/settings.py): Application configuration, third-party settings, database setups, and logger configs.
+  - [`celery.py`](file:///c:/Users/neis7/github/Dispatcharr/dispatcharr/celery.py): Celery instance setup and autodiscover.
+  - [`asgi.py`](file:///c:/Users/neis7/github/Dispatcharr/dispatcharr/asgi.py) & [`wsgi.py`](file:///c:/Users/neis7/github/Dispatcharr/dispatcharr/wsgi.py): Production server entry points.
+- [**`core/`**](file:///c:/Users/neis7/github/Dispatcharr/core): Project-wide utilities and core abstract logic.
+  - Models, serializers, tasks, signals, and base scheduler engines that are globally referenced.
+- [**`apps/`**](file:///c:/Users/neis7/github/Dispatcharr/apps): Domain-specific Django applications.
+  - [**`accounts/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/accounts): Custom user model (`accounts.User`), JWT, API Key permissions, authentication filters.
+  - [**`api/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/api): Central API endpoint router (`api_urls.py`, `views.py`), OpenAPI specification configurations (`drf-spectacular`).
+  - [**`backups/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/backups): Logic for automated and manual file and database backups.
+  - [**`channels/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/channels): DVR scheduler rules, stream associations, recording loops, and recording deduplication filters.
+  - [**`connect/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/connect): Safely run custom user automation scripts within defined subfolders.
+  - [**`dashboard/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/dashboard): General views.
+  - [**`epg/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/epg): Ingesting, downloading, parsing XMLTV files; matching programmes to channels.
+  - [**`hdhr/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/hdhr): Emulates HDHomeRun tuner endpoints (`discover.json`, `lineup.json`) to integrate virtual TV tuners with Media Centers like Plex, Emby, and Jellyfin.
+  - [**`m3u/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/m3u): Import, download, parser, and synchronize external M3U playlists.
+  - [**`output/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/output): Formats channels, VOD lists, and EPG data back into client-consumable outputs (M3U playlists, Xtream Codes APIs, XMLTV feeds).
+  - [**`plugins/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/plugins): Plugin registry, manager, and custom plugin lifecycle hooks.
+  - [**`proxy/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/proxy): High-performance stream proxier and proxy relay (buffers streams, applies output profiles / ffmpeg transcoding, measures real-time usage stats, switches to backups on failover).
+  - [**`vod/`**](file:///c:/Users/neis7/github/Dispatcharr/apps/vod): Imports VOD profiles, crawls media structure, fetches TMDB/IMDb movie/show metadata, manages VOD streams.
+
+### 🎨 Frontend Structure
+- [**`frontend/`**](file:///c:/Users/neis7/github/Dispatcharr/frontend): React frontend.
+  - [`package.json`](file:///c:/Users/neis7/github/Dispatcharr/frontend/package.json): Vite configs and frontend libraries (Mantine UI v8, Zustand, React 19).
+  - [`src/`](file:///c:/Users/neis7/github/Dispatcharr/frontend/src): Contains the components, pages, hooks, state store, and route configurations.
+
+---
+
+## ⚡ Agent Scanning Efficiency Guidelines
+To avoid redundant scans and keep execution times minimal, follow these lookup rules:
+1. **Never use wildcard file search (`grep_search`) over the whole workspace** if you can target a specific app.
+   - *Example*: If you are searching for channel matching code, target your search to `apps/channels/` or `apps/epg/`.
+2. **Consult Settings**: Check [`dispatcharr/settings.py`](file:///c:/Users/neis7/github/Dispatcharr/dispatcharr/settings.py) first if you need info about environment variables, database configuration, or celery task frequencies.
+3. **Use UV**: When installing packages or running commands, prioritize utilizing `uv run` to ensure consistency.
+
+---
+
+## 🖥️ Developer Commands Reference
+
+### 🐍 Backend Execution
+Run the following commands from the project root directory:
+
+*   **Run Development Server (Plain)**:
+    ```bash
+    uv run python manage.py runserver
+    ```
+*   **Run Development Server (ASGI/Channels)**:
+    ```bash
+    uv run daphne -p 8000 dispatcharr.asgi:application
+    ```
+*   **Run Celery Worker**:
+    ```bash
+    uv run celery -A dispatcharr worker -l info
+    ```
+*   **Run Celery Beat (Scheduler)**:
+    ```bash
+    uv run celery -A dispatcharr beat -l info
+    ```
+*   **Database Migrations**:
+    ```bash
+    uv run python manage.py makemigrations
+    uv run python manage.py migrate
+    ```
+
+### 🧪 Running Tests
+*   **Run All Django Tests**:
+    ```bash
+    uv run python manage.py test
+    ```
+*   **Run Specific App Tests**:
+    ```bash
+    uv run python manage.py test apps.channels.tests
+    ```
+*   **Run Specific Test File**:
+    ```bash
+    uv run python manage.py test apps.channels.tests.test_series_rule_dedup
+    ```
+
+### 🎨 Frontend Execution
+Run the following commands from the `frontend/` directory:
+
+*   **Install Dependencies**:
+    ```bash
+    npm install
+    ```
+*   **Start Local Development Server**:
+    ```bash
+    npm run dev
+    ```
+*   **Production Build**:
+    ```bash
+    npm run build
+    ```
+*   **Run Frontend Tests**:
+    ```bash
+    npm run test
+    ```
+
+---
+
+## 📌 Coding Patterns & Conventions
+- **Django Migrations**: Always specify dependencies for migrations. Never delete migration files unless performing a squashed migration.
+- **REST APIs**: Utilize Django REST Framework's class-based views (specifically ModelViewSet) and document them correctly using `drf-spectacular` annotations.
+- **Type Hints**: Standard Python 3.13 type hinting is required for all new functions/classes.
+- **Error Handling**: Follow structured logging patterns. Log messages using standard levels (TRACE/DEBUG/INFO/WARNING/ERROR). Keep console handlers verbose.
+- **Task Safety**: When writing Celery background tasks, use locking mechanisms where appropriate to avoid race conditions during concurrent data processing (e.g., EPG ingestion, channel stats).

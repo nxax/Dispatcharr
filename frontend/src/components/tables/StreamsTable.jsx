@@ -245,8 +245,8 @@ const StreamsTable = ({ onReady }) => {
     name: '',
     channel_group: '',
     m3u_account: '',
-    unassigned: false,
-    hide_stale: false,
+    unassigned: true,
+    hide_stale: true,
     is_catchup: false,
   });
   const [columnSizing, setColumnSizing] = useLocalStorage(
